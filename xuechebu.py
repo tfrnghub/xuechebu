@@ -127,21 +127,16 @@ def main():
                     print("waite!")
                     time.sleep(0.7)
                     continue
-                elif "该科目训练每天最多能预" in json.loads(r2.text)["message"]:
-                    return 1
-                elif "不可预约已过期的时段" in json.loads(r2.text)["message"]:
-                    return 1
                 elif "访问太过频繁,请输入验证" in json.loads(r2.text)["message"]:
                     return 0
                 elif "未查到该车辆" in json.loads(r2.text)["message"]:
                     print("教练ID错误")
                     return 1
+                elif "只能预约自己所分的车" in json.loads(r2.text)["message"]:
+                    print("教练ID错误")
+                    return 1
                 elif "请预约对应科目的车!" in json.loads(r2.text)["message"]:
                     print("该时段不可预约")
-                    return 1
-                elif "您该科目的训练小时将超出学时数!请核对" in json.loads(r2.text)["message"]:
-                    return 1
-                elif "预约失败,您该科目训练已预约完成" in json.loads(r2.text)["message"]:
                     return 1
                 else:
                     return 1
