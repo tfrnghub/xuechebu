@@ -52,6 +52,8 @@ def main():
             else:
                 print("再次请求页面")
                 continue
+        except KeyboardInterrupt:
+            return 1
         except:
             print("再次请求页面")
             continue
@@ -85,6 +87,8 @@ def main():
             else:
                 print("再次请求页面")
                 continue
+        except KeyboardInterrupt:
+            return 1
         except:
             print("再次请求页面")
             continue
@@ -117,7 +121,8 @@ def main():
                 if "身份认证失败,请重新登录" in json.loads(r2.text)["message"]:
                     return 0
                 elif "该时段已被别人预约,请刷" in json.loads(r2.text)["message"]:
-                    return 1
+                    time.sleep(60)
+                    continue
                 elif "您不能预约该时间的车辆" in json.loads(r2.text)["message"]:
                     print("waite!")
                     time.sleep(0.7)
@@ -161,7 +166,7 @@ if __name__ == '__main__':
     options.add_argument("-t",dest="time",help="预约时段, 1代表8:00-12:00, 2代表13:00-17:00, 3代表17:00-20:00",type=int)
     args = parser.parse_args()
     if args.version:
-        print('xuechebu version 1.0.0')
+        print('xuechebu version 1.1.0')
         sys.exit(0)
     if args.username:
         username=args.username
@@ -201,28 +206,29 @@ if __name__ == '__main__':
     
     now=datetime.datetime.now()
     print(now.strftime("现在时间:%Y-%m-%d %H:%M:%S"))
+    nsec=int(time.mktime(now.timetuple()))
     hour=int(now.strftime("%H"))
-    minu=int(now.strftime("%M"))
-    sec=int(now.strftime("%S"))
-    if hour<7:
-        wait_sec=60-sec+(59-minu+(6-hour)*60)*60
-        future=now+datetime.timedelta(days=6)
+
+    if args.day:
+        Yyrq=args.day       
     else:
-        wait_sec=60-sec+(59-minu+(30-hour)*60)*60
-        future=now+datetime.timedelta(days=7)
-    if wait_sec<15:
-        wait_sec=0
-    else:
-        wait_sec=wait_sec-15
-    Yyrq=future.strftime("%Y-%m-%d")
+        if hour<7:
+            future=now+datetime.timedelta(days=6)
+        else:
+            future=now+datetime.timedelta(days=7)
+        Yyrq=future.strftime("%Y-%m-%d")
+    ftime=Yyrq+' 7:00:00'
     if args.time == 1:
         print("预约时间:"+Yyrq+" 8:00-12:00")
     elif args.time == 2:
         print("预约时间:"+Yyrq+" 13:00-17:00")
     elif args.time == 3:
         print("预约时间:"+Yyrq+" 17:00-20:00")
-    print("预约时间未到,"+str(wait_sec)+"秒后开始预约")
-    time.sleep(wait_sec)  
+    fsec=int(time.mktime(time.strptime(ftime,'%Y-%m-%d %H:%M:%S')))
+    wait_sec=fsec-nsec-518415
+    if(wait_sec>0):
+        print("预约时间未到,"+str(wait_sec)+"秒后开始预约")
+        time.sleep(wait_sec)  
     while True:
         a=main()
         if a==1:
