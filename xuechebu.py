@@ -1,10 +1,9 @@
 import requests
-import http.cookiejar
 import json
 import time
 import datetime
 import hashlib
-import sys,getopt
+import sys
 import argparse
 
 
@@ -121,6 +120,7 @@ def main():
                 if "身份认证失败,请重新登录" in json.loads(r2.text)["message"]:
                     return 0
                 elif "该时段已被别人预约,请刷" in json.loads(r2.text)["message"]:
+                    print("please wait 60 seconds!")
                     time.sleep(60)
                     continue
                 elif "您不能预约该时间的车辆" in json.loads(r2.text)["message"]:
@@ -151,7 +151,7 @@ def main():
     
     
 if __name__ == '__main__':
-    parser=argparse.ArgumentParser(description='学车不平台科目二预约训练脚本')
+    parser=argparse.ArgumentParser(description='学车不平台科目二/三预约训练脚本')
     parser.add_argument("-v","--version",action="store_true",default=False,help="show version information")
     options = parser.add_argument_group('options')
     options.add_argument("-u",dest="username",help="用户名")
@@ -161,7 +161,7 @@ if __name__ == '__main__':
     options.add_argument("-t",dest="time",help="预约时段, 1代表8:00-12:00, 2代表13:00-17:00, 3代表17:00-20:00",type=int)
     args = parser.parse_args()
     if args.version:
-        print('xuechebu version 1.1.0')
+        print('xuechebu version 1.1.2')
         sys.exit(0)
     if args.username:
         username=args.username
