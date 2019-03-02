@@ -200,7 +200,7 @@ if __name__ == '__main__':
     
     
     now=datetime.datetime.now()
-    print(now.strftime("现在时间:%Y-%m-%d %H:%M:%S"))
+    print("现在时间:"+now.strftime("%Y-%m-%d %H:%M:%S"))
     nsec=int(time.mktime(now.timetuple()))
     hour=int(now.strftime("%H"))
 
