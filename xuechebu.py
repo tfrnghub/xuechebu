@@ -173,6 +173,23 @@ if __name__ == '__main__':
     else:
         print('error: the following arguments are required: -p')
         sys.exit(0)
+    m=hashlib.md5()
+    m.update(password.encode(encoding='utf-8'))
+    passwordmd5=m.hexdigest()
+    params={
+    "username":username,
+    "passwordmd5":passwordmd5}
+    r = requests.get('https://api.xuechebu.com/usercenter/userinfo/login',params=params)
+    if r.status_code==200:
+        print(json.loads(r.text)["message"])
+        if "账号或密码错误" in json.loads(r.text)["message"]:
+            sys.exit(0)
+        if "账号还未注册" in json.loads(r.text)["message"]:
+            sys.exit(0)
+    else:
+        print("网络错误")
+        sys.exit(0)
+ 
     if args.ID:
         CNBH=args.ID
     else:
@@ -191,13 +208,6 @@ if __name__ == '__main__':
     else:
         print('error: the following arguments are required: -t')
         sys.exit(0)
-    
-    
-    
-    m=hashlib.md5()
-    m.update(password.encode(encoding='utf-8'))
-    passwordmd5=m.hexdigest()
-    
     
     now=datetime.datetime.now()
     print("现在时间:"+now.strftime("%Y-%m-%d %H:%M:%S"))
