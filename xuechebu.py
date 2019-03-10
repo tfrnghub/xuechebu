@@ -26,7 +26,7 @@ def update_cookies(cookies):
     f.write(json.dumps(cookies))
     f.close()  
 
-
+        
 def main():
     s=requests.session()
     cookies=read_cookies()
@@ -43,10 +43,6 @@ def main():
             r = s.get('https://api.xuechebu.com/usercenter/userinfo/login',params=params)
             if r.status_code==200:
                 print(json.loads(r.text)["message"])
-                if "账号或密码错误" in json.loads(r.text)["message"]:
-                    return 1
-                if "账号还未注册" in json.loads(r.text)["message"]:
-                    return 1
                 break
             else:
                 print("再次请求页面")
@@ -58,28 +54,17 @@ def main():
             continue
     for c in s.cookies:
         cookies.update({c.name: c.value})
-    XXZH=json.loads(r.text)["data"]["XXZH"]
-    XYBH=json.loads(r.text)["data"]["XYBH"]
-    JGID=json.loads(r.text)["data"]["JGID"]
 
-    s=requests.session()
     params={
     "xybh":XYBH,
     "password":password,
-    "jgid":JGID,
     "callback":callback,
     "os":os}
     headers={
-    'Host': 'longquanapi.xuechebu.com',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:63.0) Gecko/20100101 Firefox/63.0',
-    'Accept': '*/*',
-    'Accept-Language': 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
-    'Accept-Encoding': 'gzip, deflate',
-    'Referer': 'http://www.xuechebu.com/sign.html',
-    'Connection': 'keep-alive'}
+    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:63.0) Gecko/20100101 Firefox/63.0'}
     while True:
         try:
-            r = s.get('http://longquanapi.xuechebu.com/Student/setbadingstuinfo',params=params,headers=headers,cookies=cookies)
+            r = s.get('http://longquanapi.xuechebu.com/Student/setbadingstuinfo',params=params,headers=headers)
             if r.status_code==200:
                 print("成功获取cookies!!")
                 break
@@ -95,26 +80,16 @@ def main():
     for c in s.cookies:
         cookies.update({c.name: c.value})
     update_cookies(cookies)
-    
-    s=requests.session()  
+      
     params={
     "callback":callback,
     "os":os,
     "cnbh":CNBH,
     "xxzh":XXZH,
-    "params":CNBH+"."+Yyrq+"."+Xnsd+".",
-    "isJcsdYyMode":1} 
-    headers={
-    'Host': 'longquanapi.xuechebu.com',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:63.0) Gecko/20100101 Firefox/63.0',
-    'Accept': '*/*',
-    'Accept-Language': 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
-    'Accept-Encoding': 'gzip, deflate',
-    'Referer': 'http://www.xuechebu.com/yueche.html',
-    'Connection': 'keep-alive'}
+    "params":CNBH+"."+Yyrq+"."+Xnsd+"."} 
     while True:
         try:
-            r2 = s.get('http://longquanapi.xuechebu.com/KM2/ClYyAddByMutil',params=params,headers=headers,cookies=cookies)
+            r2 = s.get('http://longquanapi.xuechebu.com/KM2/ClYyAddByMutil',params=params,cookies=cookies)
             if r2.status_code==200:
                 print(json.loads(r2.text)["message"].strip())
                 if "身份认证失败,请重新登录" in json.loads(r2.text)["message"]:
@@ -156,12 +131,11 @@ if __name__ == '__main__':
     options = parser.add_argument_group('options')
     options.add_argument("-u",dest="username",help="用户名")
     options.add_argument("-p",dest="password",help="密码")
-    options.add_argument("-i",dest="ID",help="教练ID")
     options.add_argument("-d",dest="day",help="预约日期, 例如 1990-1-1")
     options.add_argument("-t",dest="time",help="预约时段, 1代表8:00-12:00, 2代表13:00-17:00, 3代表17:00-20:00",type=int)
     args = parser.parse_args()
     if args.version:
-        print('xuechebu version 1.1.2')
+        print('xuechebu version 1.2.0')
         sys.exit(0)
     if args.username:
         username=args.username
@@ -176,6 +150,7 @@ if __name__ == '__main__':
     m=hashlib.md5()
     m.update(password.encode(encoding='utf-8'))
     passwordmd5=m.hexdigest()
+    
     params={
     "username":username,
     "passwordmd5":passwordmd5}
@@ -189,12 +164,21 @@ if __name__ == '__main__':
     else:
         print("网络错误")
         sys.exit(0)
- 
-    if args.ID:
-        CNBH=args.ID
+    XXZH=json.loads(r.text)["data"]["XXZH"]
+    XYBH=json.loads(r.text)["data"]["XYBH"]
+
+    params={
+    "xxzh":XXZH}   
+    r = requests.get('http://longquanapi.xuechebu.com/Student/StudyInfo',params=params)
+    if r.status_code==200:
+        if "科目三训练" in json.loads(r.text)["data"]["STAUTSNAME"]:
+            CNBH=json.loads(r.text)["data"]["KM3CNBH"]
+        else:
+            CNBH=json.loads(r.text)["data"]["CNBH"]
     else:
-        print('error: the following arguments are required: -i')
+        print("网络错误")
         sys.exit(0)
+    
     if args.time:
         if args.time == 1:
             Xnsd="812"
